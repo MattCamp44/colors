@@ -9,8 +9,17 @@ import imutils
 import cv2
 import urllib #for reading image from URL
 import os
+import math
 #from espeak import espeak
- 
+
+def checkdist(x1,y1,r1,x2,y2,r2):
+    d = math.sqrt(((x1-x2)**2)+((y1-y2)**2))
+    if d <= r1+r2:
+        return 1
+    else:
+        return 0
+p = 0
+
 # construct the argument parse and parse the arguments
 ap = argparse.ArgumentParser()
 ap.add_argument("-v", "--video",
@@ -63,6 +72,7 @@ while True:
     hsv = cv2.cvtColor(blurred, cv2.COLOR_BGR2HSV)
     #for each color in dictionary check object in frame
     radiuses = []
+    centers = []
     count = 0
     for key, value in upper.items():
         # construct a mask for the color from dictionary`1, then perform
@@ -96,10 +106,13 @@ while True:
                 cv2.circle(frame, (int(x), int(y)), int(radius), colors[key], 2)
                 cv2.putText(frame,key + " ball", (int(x-radius),int(y-radius)), cv2.FONT_HERSHEY_SIMPLEX, 0.6,colors[key],2)
                 radiuses.append(radius)
+                centers.append(x)
+                centers.append(y)
                 count += 1
-                if count >= 2:
-                    if abs(radiuses[0] - radiuses[1]) < 4:
-                        print(count)
+                if count >= 3:
+                    if checkdist(centers[0],centers[1], radiuses[0],centers[2],centers[3], radiuses[1]) and checkdist(centers[0],centers[1], radiuses[0],centers[4],centers[5], radiuses[2]):
+                        p += 1
+                        print(p)
                     #else:
                         #os.system("espeak no")
                         
